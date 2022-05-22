@@ -3,8 +3,12 @@ package me.sat7.dynamicshop.utilities;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.data.NodeMap;
+import net.luckperms.api.node.matcher.NodeMatcher;
 import net.luckperms.api.node.types.MetaNode;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -26,7 +30,13 @@ public class LuckPermsUtils {
     public LuckPermsUtils(LuckPerms luckperms) {
         this.luckperms = luckperms;
     }
+
+
+
+
     public static void setKarma(Player player, int level) {
+
+
         LuckPerms luckperms = LuckPermsProvider.get();
         // obtain a User instance (by any means! see above for other ways)
         User user = luckperms.getPlayerAdapter(Player.class).getUser(player);

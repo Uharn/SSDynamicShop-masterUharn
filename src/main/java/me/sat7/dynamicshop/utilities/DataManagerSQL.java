@@ -8,12 +8,12 @@ import org.bukkit.entity.Player;
 
 import java.sql.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 public class DataManagerSQL {
+
+
 
     //return the total number of item sold from UUID + ITEM
     public static Integer getTotalPlayerItemQty(UUID uuid, String itemname, Connection connection) throws SQLException {
@@ -68,6 +68,41 @@ public class DataManagerSQL {
         }
         return null;
     }
+    //return the top 10 item to sell for a player
+    public static Map<String,Double> getTotalPlayerTopItemValue(UUID uuid, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM dynamics WHERE user_uuid=? Order by value_Sold DESC limit 10;")) {
+            statement.setString(1, uuid.toString());
+            ResultSet resultSet = statement.executeQuery();
+            final Map<String,Double> totalPlayerTopItemValue = new HashMap<>();
+            while (resultSet.next()) {
+
+                totalPlayerTopItemValue.put(resultSet.getString("itemname"),resultSet.getDouble("value_Sold"));
+
+            }
+            statement.close();
+            return totalPlayerTopItemValue;
+        }
+    }
+
+    //return the top 10 item to sell for a player
+    public static Map<String,Double> getTotalPlayerBottomItemValue(UUID uuid, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM dynamics WHERE user_uuid=? Order by value_Sold ASC limit 10;")) {
+            statement.setString(1, uuid.toString());
+            ResultSet resultSet = statement.executeQuery();
+            final Map<String,Double> totalPlayerBottomItemValue = new HashMap<>();
+            while (resultSet.next()) {
+
+                totalPlayerBottomItemValue.put(resultSet.getString("itemname"),resultSet.getDouble("value_Sold"));
+
+            }
+            statement.close();
+            return totalPlayerBottomItemValue;
+
+        }
+    }
+
 
     //Insert player/item into the database
     public static void addPlayeritem(UUID playerUUID, String itemname, Integer qty_Sold, Double value_Sold, String last_update, Connection connection) throws SQLException {

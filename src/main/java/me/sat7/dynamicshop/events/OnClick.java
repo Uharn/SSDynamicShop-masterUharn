@@ -22,6 +22,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.sql.SQLException;
 import java.util.*;
 
+import static me.sat7.dynamicshop.transactions.Sell.*;
+
 public class OnClick implements Listener {
 
     // UI 인벤토리에 드래그로 아이탬 올리는것을 막음

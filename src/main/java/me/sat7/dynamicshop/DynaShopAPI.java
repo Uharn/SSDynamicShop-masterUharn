@@ -10,9 +10,14 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import me.sat7.dynamicshop.utilities.DataManagerSQL;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public final class DynaShopAPI {
     public static DecimalFormat df = new DecimalFormat("0.00");
@@ -187,7 +192,7 @@ public final class DynaShopAPI {
             int idx = ShopUtil.findItemFromShop(shopName, itemStack);
             if (idx != -1) {
                 double price = Calc.getCurrentPrice(shopName, String.valueOf(idx), false);
-                return price - ((price/100) * getTaxRate(shopName));
+                return price - ((price / 100) * getTaxRate(shopName));
             } else {
                 return idx;
             }
@@ -262,4 +267,34 @@ public final class DynaShopAPI {
     public static boolean validateShopName(@NonNull String shopName) {
         return getShops().contains(shopName);
     }
+
+
+    /**
+     * Get top2sell item for a player based on its diversity
+     *
+     * @param playerid The player to check the top2sell items
+     * @return material of the item and Value
+     * @throws IllegalArgumentException When the player does not exist
+     */
+    public static Map<String,Double> Gettop2sell(@NonNull Player playerid) throws IllegalArgumentException, SQLException {
+        Connection connection = DynamicShop.getConnection();
+        return DataManagerSQL.getTotalPlayerTopItemValue(playerid.getUniqueId(), connection);
+
+    }
+    /**
+     * Get top2notToSell item for a player based on its diversity
+     *
+     * @param playerid The player to check the top2sell items
+     * @return material of the item and Value
+     * @throws IllegalArgumentException When the player does not exist
+     */
+    public static Map<String,Double> Gettop2NoToSell(@NonNull Player playerid) throws IllegalArgumentException, SQLException {
+        Connection connection = DynamicShop.getConnection();
+
+            return DataManagerSQL.getTotalPlayerBottomItemValue(playerid.getUniqueId(), connection);
+        }
+
+
+
+
 }

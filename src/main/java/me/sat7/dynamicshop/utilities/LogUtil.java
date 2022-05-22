@@ -8,12 +8,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import me.sat7.dynamicshop.DynamicShop;
 import me.sat7.dynamicshop.constants.Constants;
 import me.sat7.dynamicshop.files.CustomConfig;
 import org.bukkit.entity.Player;
+import me.sat7.dynamicshop.utilities.UpdatePalier;
 import me.sat7.dynamicshop.utilities.LuckPermsUtils;
+import static me.sat7.dynamicshop.utilities.UpdatePalier.*;
 
 
 import static me.sat7.dynamicshop.utilities.DataManagerSQL.*;
@@ -57,8 +61,10 @@ public final class LogUtil {
             }
         }
     }
+
     //LOGSQL
     public static void addsqlLog(String shopName, String itemName, int amount, double value, String curr, Player player) throws SQLException {
+
         if(DynamicShop.plugin.getConfig().getBoolean("SaveLogs")) {
             Connection connection = DynamicShop.getConnection();
             SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy-HH:mm:ss");
@@ -161,25 +167,30 @@ public final class LogUtil {
             }
             //calcul du karma
             Double playerKarma = getPlayerKarma(playerUUID, connection);
-            Double playerKarma4D = Math.round(playerKarma*10000.0)/10000.0;
+            Double playerKarma4D = Math.floor(playerKarma*10000.0)/10000.0;
 
 
-            int playerKarmaInt = (int) Math.round(playerKarma);
+            int playerKarmaInt = (int) Math.floor(playerKarma);
             //enregistre la note de karma dans les permissions
            // Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user "+player.getName()+" meta set karma "+ playerKarma4D );
-            LuckPermsUtils.setKarma(player,4);
+
+          //  LuckPermsUtils.setKarma(player,4);
+           // this.singleThreadExecutor.execute(() -> SomeClass.setMyThing(player, 4));
+
             LuckPermsUtils.setKarmaNote(player,playerKarma4D);
 
             if (isBetween(playerKarmaInt,0,1)) {
                 //Appliquer a l'utilisateur la perm palier 4
-                LuckPermsUtils.setKarma(player,4);
+                //LuckPermsUtils.setKarma(player,4);
+                UpdatePalier.setPalier(player, 4);
                 //bonus +10%
-                player.sendMessage(DynamicShop.dsPrefix + "§3§lShops §7»§aVotre note de diversité est de: §6" + playerKarma4D + "\n" + " §3§lBONUS de diversité +10% activé sur tout les tarifs du shop");
+                player.sendMessage(DynamicShop.dsPrefix + "§3§lShops §7»§aVotre note de diversité est de: §6" + playerKarma4D + "\n" + " §3§lBONUS de diversité +10% activé sur tous les tarifs du shop");
 
                // Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user "+player.getName()+" meta set dynshopspalier 4" );
             } else if (isBetween(playerKarmaInt,1,2)) {
                 //attention bientôt plus de bonus
-                LuckPermsUtils.setKarma(player,4);
+                //LuckPermsUtils.setKarma(player,4);
+                UpdatePalier.setPalier(player, 4);
                 //Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user "+player.getName()+" meta set dynshopspalier 4" );
                 player.sendMessage(DynamicShop.dsPrefix + "§3§lShops §7»§aVotre note de diversité est de: §6" + playerKarma4D + "\n" + " §3§lBONUS de diversité +10% activé§c qui disparaîtra si vous dépassez 2");
                 //Appliquer a l'utilisateur la perm palier 4
@@ -187,29 +198,33 @@ public final class LogUtil {
 
             } else if (isBetween(playerKarmaInt,2,8)) {
                 //Appliquer a l'utilisateur la perm palier 3
-                LuckPermsUtils.setKarma(player,3);
+               // LuckPermsUtils.setKarma(player,3);
+                UpdatePalier.setPalier(player, 3);
                 //Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user "+player.getName()+" meta set dynshopspalier 3" );
                 //Tarif Normaux
                 player.sendMessage(DynamicShop.dsPrefix + "§3§lShops §7»§aVotre note de diversité est de: §6" + playerKarma4D + "\n" + " §3Vous bénéficiez des tarifs normaux");
 
             } else if (isBetween(playerKarmaInt,8,10)) {
                 //Appliquer a l'utilisateur la perm palier 3
-                LuckPermsUtils.setKarma(player,3);
+                //LuckPermsUtils.setKarma(player,3);
+                UpdatePalier.setPalier(player, 3);
                 //attention bientôt tarifs cassés a -50% si vous ne vous diversifiez pas
-                player.sendMessage(DynamicShop.dsPrefix + "§3§lShops §7»§aVotre note de diversité est de: §6" + playerKarma4D + "\n" + " §3>Tarifs normaux, mais si vous dépassez §3§l60 §3vous vendrez §c-50%§3 moins cher: §3§lIL FAUT VOUS DIVERSIFIER");
+                player.sendMessage(DynamicShop.dsPrefix + "§3§lShops §7»§aVotre note de diversité est de: §6" + playerKarma4D + "\n" + " §3>Tarifs normaux, mais si vous dépassez §3§l10 §3vous vendrez §c-50%§3 moins cher: §3§lIL FAUT VOUS DIVERSIFIER");
 
                 //Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user "+player.getName()+" meta set dynshopspalier 3" );
 
             } else if (isBetween(playerKarmaInt,10,40)) {
                 //Appliquer a l'utilisateur la perm palier 2
-                LuckPermsUtils.setKarma(player,2);
+               // LuckPermsUtils.setKarma(player,2);
+                UpdatePalier.setPalier(player, 2);
                 //Tarifs cassés
                 player.sendMessage(DynamicShop.dsPrefix + "§3§lShops §7»§aVotre note de diversité est de: §6" + playerKarma4D + "\n" + " §3Prix cassés à §c-50%§3: §3§lIL FAUT VOUS DIVERSIFIER");
 
                 //Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user "+player.getName()+" meta set dynshopspalier 2" );
             } else if (isBetween(playerKarmaInt,40,100000)) {
                 //Appliquer a l'utilisateur la perm palier 1
-                LuckPermsUtils.setKarma(player,1);
+               // LuckPermsUtils.setKarma(player,1);
+                UpdatePalier.setPalier(player, 1);
                 //Tarifs cassés
                 player.sendMessage(DynamicShop.dsPrefix + "§3§lShops §7»§aVotre note de diversité est de: §6" + playerKarma4D + "\n" + " §3Prix cassés à §c-90%§3: §3§lVous étiez prévenu");
 
